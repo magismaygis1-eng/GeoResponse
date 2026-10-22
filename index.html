@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>سجل الأضرار ومخيمات النزوح – غزة</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.Default.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/leaflet.markercluster.min.js"></script>
+<style>
+:root{--ink:#12202e;--bg:#eef1f3;--card:#fff;--line:#d5dbe0;--mut:#5d6b78;--pri:#0b5563;--pri2:#0e7c8c;--bad:#9d1c1c}
+*{box-sizing:border-box}
+body{margin:0;font-family:Tajawal,Tahoma,sans-serif;background:var(--bg);color:var(--ink);font-size:15px}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid #f2b705;outline-offset:1px}
+header{background:var(--ink);color:#fff;padding:12px 20px;display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between}
+header h1{margin:0;font-size:20px;font-weight:800}
+header p{margin:2px 0 0;font-size:13px;color:#9fb4c4}
+.tools{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.btn{border:1px solid var(--line);background:#fff;border-radius:8px;padding:7px 12px;font-weight:500;font-size:14px}
+.btn.dk{background:#1f3347;border-color:#34495e;color:#fff}
+.btn.pri{background:var(--pri);border-color:var(--pri);color:#fff;font-weight:700}
+.btn:hover{filter:brightness(1.12)}
+.anon{color:#cfdbe6;font-size:13px;display:flex;gap:5px;align-items:center}
+.kpis{display:flex;flex-wrap:wrap;background:var(--card);border-bottom:1px solid var(--line)}
+.kpi{flex:1 1 150px;padding:12px 20px;border-inline-start:1px solid var(--line)}
+.kpi b{display:block;font-size:30px;font-weight:800;line-height:1.1}
+.kpi span{font-size:13px;color:var(--mut)}
+.filters{display:flex;flex-wrap:wrap;gap:8px;padding:12px 20px;background:#e3e8ec}
+.filters input,.filters select,.f input,.f select,.f textarea{border:1px solid var(--line);border-radius:8px;padding:7px 10px;background:#fff;width:100%}
+.filters input,.filters select{width:auto;min-width:130px;flex:1 1 130px}
+main{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(320px,1fr);gap:16px;padding:16px 20px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.card h2{margin:0;padding:10px 14px;font-size:15px;font-weight:700;border-bottom:1px solid var(--line);background:#f6f8f9;display:flex;justify-content:space-between;align-items:center;gap:8px}
+#map{height:560px}
+.side{display:flex;flex-direction:column;gap:16px}
+.tabs{display:flex}
+.tabs button{flex:1;border:0;background:#f6f8f9;padding:10px;font-weight:700;border-bottom:3px solid transparent}
+.tabs button[aria-selected=true]{background:#fff;border-bottom-color:var(--pri)}
+.pane{padding:14px}
+.f{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.f label{font-size:13px;font-weight:700;display:block;margin-bottom:3px}
+.f .w{grid-column:1/-1}
+.hint{font-size:12px;color:var(--mut);margin-top:3px}
+.bar{display:grid;grid-template-columns:110px 1fr 34px;gap:8px;align-items:center;margin:6px 0;font-size:13px}
+.bar i{display:block;height:14px;border-radius:3px;min-width:2px}
+.bar em{font-style:normal;font-weight:700;text-align:start}
+.tbl{overflow-x:auto;grid-column:1/-1}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{background:#f0f3f5;text-align:start;padding:9px 10px;white-space:nowrap}
+td{padding:8px 10px;border-top:1px solid var(--line)}
+tbody tr:nth-child(even){background:#f8fafb}
+.chip{display:inline-block;padding:2px 9px;border-radius:12px;color:#fff;font-size:12px;font-weight:700}
+.st{border:1px solid var(--line);border-radius:12px;padding:2px 9px;font-size:12px;background:#fff}
+.st.v{background:#d9f0df;border-color:#8cc89b}.st.r{background:#f6d6d6;border-color:#d89a9a}
+.ib{border:0;background:none;padding:4px 7px;font-size:16px;border-radius:6px}.ib:hover{background:#e3e8ec}
+.m{display:block;width:16px;height:16px;border:2px solid #fff;box-shadow:0 0 3px #0008}
+.m.b{border-radius:2px}.m.c{border-radius:50%}.m.a{transform:rotate(45deg);width:14px;height:14px}.m.i{border-radius:50% 50% 2px 2px}
+.m.k{clip-path:polygon(50% 0,100% 100%,0 100%);border:0;width:18px;height:17px;box-shadow:none}
+.leg{display:flex;flex-wrap:wrap;gap:12px;padding:8px 14px;font-size:12px;border-top:1px solid var(--line);color:var(--mut)}
+#toast{position:fixed;bottom:18px;inset-inline-start:18px;background:var(--ink);color:#fff;padding:10px 16px;border-radius:8px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:9999;max-width:80vw}
+#toast.on{opacity:1}
+dialog{border:0;border-radius:12px;padding:18px;max-width:480px;width:92%;box-shadow:0 10px 40px #0006}
+dialog::backdrop{background:#12202e99}
+dialog p{margin:6px 0}
+@media(max-width:900px){main{grid-template-columns:1fr}#map{height:420px}}
+@media print{header,.filters,.side,.leg,.ib,#toast{display:none!important}main{display:block}#map{height:380px}}
+</style>
+</head>
+<body>
+<header>
+ <div><h1>سجل الأضرار ومخيمات النزوح – غزة</h1><p>توثيق ميداني بتصنيف معياري وتحقق من البيانات</p></div>
+ <div class="tools">
+  <label class="anon" title="يحذف الأسماء والعناوين والملاحظات ويقرّب الإحداثيات (~100 م)"><input type="checkbox" id="anon"> تصدير مُجهَّل</label>
+  <button class="btn dk" data-x="geo">GeoJSON</button>
+  <button class="btn dk" data-x="csv">CSV</button>
+  <button class="btn dk" data-x="bak">نسخة احتياطية</button>
+  <label class="btn dk">استيراد<input type="file" id="imp" accept=".json,.geojson" hidden></label>
+  <button class="btn pri" onclick="print()">طباعة</button>
+ </div>
+</header>
+<section class="kpis" id="kpis"></section>
+<section class="filters" aria-label="الفلاتر">
+ <input id="q" type="search" placeholder="بحث بالاسم أو المعرف…">
+ <select id="fCat"><option value="">كل الفئات</option></select>
+ <select id="fGrade"><option value="">كل الدرجات</option></select>
+ <select id="fDist"><option value="">كل الأحياء</option></select>
+ <select id="fSt"><option value="">كل حالات التحقق</option></select>
+ <button class="btn" id="fClr">مسح الفلاتر</button>
+</section>
+<main>
+ <div class="card">
+  <h2>الخريطة
+   <span class="tools"><select id="base" class="btn" aria-label="خلفية الخريطة"><option value="sat">أقمار صناعية</option><option value="osm">شوارع OSM</option><option value="lt">خريطة فاتحة</option></select>
+   <button class="btn pri" id="loc">موقعي</button></span></h2>
+  <div id="map"></div>
+  <div class="leg" id="leg"></div>
+ </div>
+ <div class="side">
+  <div class="card">
+   <div class="tabs" role="tablist"><button role="tab" aria-selected="true" data-t="form" id="tForm">تسجيل جديد</button><button role="tab" aria-selected="false" data-t="dash">مؤشرات</button></div>
+   <div class="pane" id="pForm">
+    <form id="form" class="f" novalidate>
+     <input type="hidden" id="eid">
+     <div class="w"><label for="owner">اسم المالك / المخيم / المرفق *</label><input id="owner" required maxlength="120"></div>
+     <div><label for="type">نوع الكيان *</label><select id="type"></select></div>
+     <div><label for="qty" id="qtyL">الكمية</label><input id="qty" type="number" min="1" value="1"></div>
+     <div><label for="grade">درجة الضرر / الحالة *</label><select id="grade"></select></div>
+     <div><label for="status">حالة التحقق</label><select id="status"></select></div>
+     <div class="w"><label for="dist">الحي / المنطقة *</label><select id="dist"></select></div>
+     <div id="campX" class="w f" hidden style="padding:0"><div><label for="fam">عدد الأسر</label><input id="fam" type="number" min="0"></div><div><label for="per">عدد الأفراد</label><input id="per" type="number" min="0"></div></div>
+     <div class="w"><label for="street">وصف الموقع / المعالم القريبة</label><input id="street" maxlength="160"></div>
+     <div><label for="lat">خط العرض *</label><input id="lat" type="number" step="any" required></div>
+     <div><label for="lng">خط الطول *</label><input id="lng" type="number" step="any" required></div>
+     <div class="w hint" id="gpsH">انقر على الخريطة لالتقاط الإحداثيات.</div>
+     <div class="w"><label for="notes">ملاحظات المعاينة</label><textarea id="notes" rows="2" maxlength="500"></textarea></div>
+     <div class="w" style="display:flex;gap:8px"><button class="btn pri" style="flex:1" id="sub">حفظ السجل</button><button type="button" class="btn" id="cancel" hidden>إلغاء التعديل</button></div>
+    </form>
+   </div>
+   <div class="pane" id="pDash" hidden></div>
+  </div>
+ </div>
+ <div class="card tbl">
+  <h2>السجلات <span id="cnt" class="st"></span></h2>
+  <table><thead><tr><th>المعرف</th><th>الاسم</th><th>النوع</th><th>الكمية</th><th>الدرجة</th><th>الحي</th><th>التحقق</th><th>إجراءات</th></tr></thead><tbody id="tb"></tbody></table>
+ </div>
+</main>
+<dialog id="dlg"><div id="dBody"></div><div style="text-align:end;margin-top:12px"><button class="btn" onclick="dlg.close()">إغلاق</button></div></dialog>
+<div id="toast" role="status"></div>
+<script>
+const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const BLD=["مدمّر كلياً","ضرر شديد","ضرر متوسط","ضرر محتمل"],CAMPG=["نشط ومكتظ","نشط","مُخلى"],AGRG=["تجريف كامل","تجريف جزئي"];
+const TYPES=[{k:'res',n:'مبنى سكني',c:'bld',u:'طابق'},{k:'multi',n:'عمارة سكنية',c:'bld',u:'طابق'},{k:'edu',n:'مرفق تعليمي',c:'bld',u:'طابق'},{k:'health',n:'مرفق صحي',c:'bld',u:'طابق'},{k:'com',n:'منشأة تجارية',c:'bld',u:'طابق'},{k:'camp',n:'مخيم نزوح',c:'camp',u:'خيمة'},{k:'agri',n:'أرض زراعية',c:'agri',u:'دونم'},{k:'infra',n:'بنية تحتية',c:'infra',u:'وحدة'}];
+const CATS={bld:'مبانٍ ومنشآت',camp:'مخيمات نزوح',agri:'أراضٍ زراعية',infra:'بنية تحتية'};
+const SHAPE={bld:'b',camp:'k',agri:'a',infra:'i'};
+const GCOL={"مدمّر كلياً":"#9d1c1c","ضرر شديد":"#e8590c","ضرر متوسط":"#d9a400","ضرر محتمل":"#7b8794","نشط ومكتظ":"#1c6ed5","نشط":"#5b9bf0","مُخلى":"#9fb4cc","تجريف كامل":"#3f7d2e","تجريف جزئي":"#8fba6a"};
+const DISTS=["حي الرمال","حي تل الهوى","حي الشيخ رضوان","حي الشجاعية","حي الزيتون","حي النصر","مخيم الشاطئ","المحافظات الجنوبية","المحافظات الوسطى","محافظة الشمال","منطقة أخرى"];
+const STS=[{k:'draft',n:'مسودة'},{k:'ok',n:'تم التحقق'},{k:'rej',n:'مرفوض'}];
+const BB={la:[31.2,31.62],ln:[34.2,34.6]};
+const tOf=k=>TYPES.find(t=>t.k===k),gradesOf=t=>t.c==='camp'?CAMPG:t.c==='agri'?AGRG:BLD,stN=k=>(STS.find(s=>s.k===k)||STS[0]).n;
+let S={claims:[],seq:0},map,cl,eid=null;
+const today=()=>new Date().toISOString().slice(0,10);
+function toast(m){const t=$('#toast');t.textContent=m;t.className='on';clearTimeout(toast.h);toast.h=setTimeout(()=>t.className='',3500)}
+function save(){try{localStorage.setItem('gaza_reg_v5',JSON.stringify(S))}catch(e){toast('تعذر الحفظ في المتصفح – صدّر نسخة احتياطية الآن.')}}
+function nid(){return `REC-${new Date().getFullYear()}-${String(++S.seq).padStart(4,'0')}`}
+const hav=(a,b,c,d)=>{const R=6371000,r=Math.PI/180,x=(c-a)*r,y=(d-b)*r*Math.cos((a+c)*r/2);return R*Math.hypot(x,y)};
+// تحويل السجلات القديمة (v4) أو المستوردة إلى النموذج الجديد
+function norm(o){
+ if(!o||typeof o!=='object')return null;
+ let t=tOf(o.type)||TYPES.find(x=>String(o.facilityType||o.type||'').startsWith(x.n));
+ if(!t)return null;
+ const lat=+o.lat,lng=+o.lng;if(!(lat>=BB.la[0]&&lat<=BB.la[1]&&lng>=BB.ln[0]&&lng<=BB.ln[1]))return null;
+ let g=o.grade||o.severity||'';const gs=gradesOf(t);
+ if(!gs.includes(g)){g=/كلي|تسوية/.test(g)?gs[0]:/انهيار/.test(g)?gs[Math.min(1,gs.length-1)]:/غير صالح/.test(g)?gs[Math.min(2,gs.length-1)]:/مكتظ/.test(g)?CAMPG[0]:gs[gs.length-1];if(t.c==='camp'&&!CAMPG.includes(g))g=CAMPG[1]}
+ const s=v=>String(v??'').slice(0,500);
+ return{id:s(o.id),owner:s(o.owner||'غير محدد').slice(0,120),type:t.k,qty:Math.max(1,parseInt(o.qty??o.floorsCount??o.measurement)||1),grade:g,status:STS.some(x=>x.k===o.status)?o.status:'draft',district:s(o.district||(o.location||'').replace(/^حي مخيم/,'مخيم')||'منطقة أخرى'),street:s(o.street||o.localStreet),lat,lng,notes:s(o.notes||o.description),fam:+o.fam||0,per:+o.per||0,date:s(o.date)||today()}}
+function load(){
+ try{const r=localStorage.getItem('gaza_reg_v5');if(r){S=JSON.parse(r);return}
+  const old=localStorage.getItem('gaza_damage_and_camps_v4');
+  if(old){S.claims=JSON.parse(old).map(norm).filter(Boolean);S.seq=S.claims.length;S.claims.forEach(c=>{if(!c.id)c.id=nid()});save();toast('تم ترحيل بياناتك السابقة إلى النموذج الجديد.');return}}catch(e){}
+ S.claims=[{owner:'عمارة الياسمين السكنية',type:'multi',qty:5,grade:BLD[0],district:'حي الرمال',street:'شارع عمر المختار',lat:31.515,lng:34.455,notes:'مثال: انهيار كامل.'},{owner:'مخيم النور للنازحين',type:'camp',qty:85,grade:CAMPG[0],district:'مخيم الشاطئ',street:'قرب الكورنيش',lat:31.528,lng:34.442,fam:90,per:430,notes:'مثال توضيحي.'},{owner:'أراضي تل الهوى',type:'agri',qty:12,grade:AGRG[0],district:'حي تل الهوى',street:'شارع الجامعات',lat:31.498,lng:34.435,notes:'مثال توضيحي.'}].map(norm).map(c=>(c.id=nid(),c));save()}
+// ---- الفلاتر والعرض ----
+function view(){const q=$('#q').value.trim().toLowerCase(),cat=$('#fCat').value,g=$('#fGrade').value,d=$('#fDist').value,s=$('#fSt').value;
+ return S.claims.filter(c=>{const t=tOf(c.type);return(!q||c.owner.toLowerCase().includes(q)||c.id.toLowerCase().includes(q))&&(!cat||t.c===cat)&&(!g||c.grade===g)&&(!d||c.district===d)&&(!s||c.status===s)})}
+function render(){const v=view(),cat=c=>tOf(c.type).c,n=k=>v.filter(c=>cat(c)===k).length;
+ const floors=v.filter(c=>cat(c)==='bld').reduce((a,c)=>a+c.qty,0),tents=v.filter(c=>cat(c)==='camp').reduce((a,c)=>a+c.qty,0);
+ $('#kpis').innerHTML=[['السجلات',v.length],['مبانٍ ومنشآت',n('bld')],['طوابق مرصودة',floors],['مخيمات نزوح',n('camp')],['خيام مرصودة',tents],['أراضٍ وبنية تحتية',n('agri')+n('infra')],['بانتظار التحقق',v.filter(c=>c.status==='draft').length]].map(k=>`<div class="kpi"><b>${k[1]}</b><span>${k[0]}</span></div>`).join('');
+ $('#cnt').textContent=v.length+' من '+S.claims.length;
+ $('#tb').innerHTML=v.length?v.map(c=>{const t=tOf(c.type);return`<tr><td dir="ltr">${esc(c.id)}</td><td><b>${esc(c.owner)}</b></td><td>${esc(t.n)}</td><td>${c.qty} ${t.u}</td><td><span class="chip" style="background:${GCOL[c.grade]}">${esc(c.grade)}</span></td><td>${esc(c.district)}</td><td><button class="st ${c.status==='ok'?'v':c.status==='rej'?'r':''}" data-a="s" data-id="${esc(c.id)}" title="اضغط لتغيير الحالة">${stN(c.status)}</button></td><td><button class="ib" data-a="z" data-id="${esc(c.id)}" title="على الخريطة">📍</button><button class="ib" data-a="v" data-id="${esc(c.id)}" title="تفاصيل">👁</button><button class="ib" data-a="e" data-id="${esc(c.id)}" title="تعديل">✏️</button><button class="ib" data-a="d" data-id="${esc(c.id)}" title="حذف">🗑</button></td></tr>`}).join(''):'<tr><td colspan="8" style="text-align:center;color:var(--mut);padding:24px">لا توجد سجلات مطابقة. عدّل الفلاتر أو أضف سجلاً جديداً.</td></tr>';
+ cl.clearLayers();v.forEach(c=>{const t=tOf(c.type),m=L.marker([c.lat,c.lng],{icon:L.divIcon({className:'',html:`<span class="m ${SHAPE[t.c]}" style="background:${GCOL[c.grade]}"></span>`,iconSize:[18,18],iconAnchor:[9,9]})});
+  m.bindPopup(`<b>${esc(c.owner)}</b><br>${esc(t.n)} – ${c.qty} ${t.u}<br>${esc(c.grade)}<br>${esc(c.district)}`);cl.addLayer(m)});
+ dash(v)}
+function bars(title,obj,col){const mx=Math.max(1,...Object.values(obj));return`<h3 style="font-size:14px;margin:12px 0 4px">${title}</h3>`+(Object.keys(obj).length?Object.entries(obj).map(([k,n])=>`<div class="bar"><span>${esc(k)}</span><span><i style="width:${n/mx*100}%;background:${col(k)}"></i></span><em>${n}</em></div>`).join(''):'<p class="hint">لا بيانات.</p>')}
+function dash(v){const by=f=>v.reduce((o,c)=>{const k=f(c);o[k]=(o[k]||0)+1;return o},{});
+ const gr=by(c=>c.grade),ds=Object.fromEntries(Object.entries(by(c=>c.district)).sort((a,b)=>b[1]-a[1])),ct=by(c=>CATS[tOf(c.type).c]),st=by(c=>stN(c.status));
+ const fam=v.filter(c=>c.type==='camp').reduce((a,c)=>a+c.fam,0),per=v.filter(c=>c.type==='camp').reduce((a,c)=>a+c.per,0);
+ $('#pDash').innerHTML=bars('حسب درجة الضرر',gr,k=>GCOL[k])+bars('حسب الحي',ds,()=>'#0b5563')+bars('حسب الفئة',ct,()=>'#12202e')+bars('حالة التحقق',st,()=>'#0e7c8c')+`<p class="hint">نازحون في المخيمات المرصودة: ${per} فرداً في ${fam} أسرة.</p>`}
+// ---- النموذج ----
+function fillSel(el,arr,key){el.innerHTML=arr.map(x=>key?`<option value="${esc(x.k)}">${esc(x.n)}</option>`:`<option>${esc(x)}</option>`).join('')}
+function onType(keep){const t=tOf($('#type').value);$('#qtyL').textContent=`الكمية (${t.u})`;const g=$('#grade'),cur=g.value;fillSel(g,gradesOf(t));if(keep&&gradesOf(t).includes(cur))g.value=cur;$('#campX').hidden=t.c!=='camp'}
+function resetForm(){$('#form').reset();$('#eid').value='';eid=null;$('#sub').textContent='حفظ السجل';$('#cancel').hidden=true;onType()}
+$('#form').addEventListener('submit',e=>{e.preventDefault();
+ const t=tOf($('#type').value),lat=+$('#lat').value,lng=+$('#lng').value,owner=$('#owner').value.trim();
+ if(!owner)return toast('أدخل اسم المالك أو المخيم.'),$('#owner').focus();
+ if(!$('#lat').value||!$('#lng').value)return toast('حدّد الموقع بالنقر على الخريطة أو أدخل الإحداثيات.');
+ if(!(lat>=BB.la[0]&&lat<=BB.la[1]&&lng>=BB.ln[0]&&lng<=BB.ln[1]))return toast('الإحداثيات خارج نطاق قطاع غزة. تأكد من ترتيب العرض والطول.');
+ const dup=S.claims.find(c=>c.id!==eid&&c.type===t.k&&hav(c.lat,c.lng,lat,lng)<15);
+ if(dup&&!confirm(`يوجد سجل من النوع نفسه على بُعد أقل من 15 م (${dup.id} – ${dup.owner}). هل تريد الحفظ رغم ذلك؟`))return;
+ const r={owner,type:t.k,qty:Math.max(1,parseInt($('#qty').value)||1),grade:$('#grade').value,status:$('#status').value,district:$('#dist').value,street:$('#street').value.trim(),lat:+lat.toFixed(6),lng:+lng.toFixed(6),notes:$('#notes').value.trim(),fam:t.c==='camp'?+$('#fam').value||0:0,per:t.c==='camp'?+$('#per').value||0:0};
+ if(eid){const i=S.claims.findIndex(c=>c.id===eid);S.claims[i]={...S.claims[i],...r};toast('تم حفظ التعديلات.')}else{S.claims.unshift({id:nid(),date:today(),...r});toast('تمت إضافة السجل.')}
+ save();resetForm();render();map.flyTo([lat,lng],17)});
+$('#type').onchange=()=>onType();$('#cancel').onclick=resetForm;
+function edit(c){tab('form');eid=c.id;$('#type').value=c.type;onType();$('#grade').value=c.grade;
+ [['owner','owner'],['qty','qty'],['status','status'],['dist','district'],['street','street'],['lat','lat'],['lng','lng'],['notes','notes'],['fam','fam'],['per','per']].forEach(([i,k])=>$('#'+i).value=c[k]??'');
+ $('#sub').textContent='حفظ التعديلات';$('#cancel').hidden=false;$('#owner').focus()}
+function tab(t){document.querySelectorAll('.tabs button').forEach(b=>b.setAttribute('aria-selected',b.dataset.t===t));$('#pForm').hidden=t!=='form';$('#pDash').hidden=t!=='dash'}
+document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>tab(b.dataset.t));
+$('#tb').addEventListener('click',e=>{const b=e.target.closest('button[data-a]');if(!b)return;const c=S.claims.find(x=>x.id===b.dataset.id);if(!c)return;
+ const a=b.dataset.a;
+ if(a==='z'){map.flyTo([c.lat,c.lng],18);scrollTo({top:0,behavior:'smooth'})}
+ else if(a==='e')edit(c);
+ else if(a==='s'){c.status=STS[(STS.findIndex(s=>s.k===c.status)+1)%3].k;save();render()}
+ else if(a==='d'){if(confirm(`حذف السجل ${c.id} (${c.owner})؟`)){S.claims=S.claims.filter(x=>x!==c);save();render();toast('تم الحذف.')}}
+ else if(a==='v'){const t=tOf(c.type);$('#dBody').innerHTML=`<h3 style="margin-top:0">${esc(c.owner)}</h3><p><b>المعرف:</b> ${esc(c.id)}</p><p><b>النوع:</b> ${esc(t.n)} – ${c.qty} ${t.u}</p><p><b>الدرجة:</b> ${esc(c.grade)}</p><p><b>التحقق:</b> ${stN(c.status)}</p><p><b>الموقع:</b> ${esc(c.district)} – ${esc(c.street)}</p><p dir="ltr" style="text-align:end"><b>${c.lat}, ${c.lng}</b></p>${t.c==='camp'?`<p><b>النازحون:</b> ${c.per} فرداً / ${c.fam} أسرة</p>`:''}<p><b>الملاحظات:</b> ${esc(c.notes)||'—'}</p><p><b>تاريخ التسجيل:</b> ${esc(c.date)}</p>`;$('#dlg').showModal()}});
+// ---- الخريطة ----
+function initMap(){map=L.map('map',{center:[31.5,34.45],zoom:12});
+ const B={sat:L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,attribution:'Tiles © Esri, Maxar, Earthstar Geographics'}),osm:L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}),lt:L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{maxZoom:19,attribution:'© OpenStreetMap © CARTO'})};
+ let cur=B.sat.addTo(map);$('#base').onchange=e=>{map.removeLayer(cur);cur=B[e.target.value].addTo(map)};
+ cl=L.markerClusterGroup({maxClusterRadius:45}).addTo(map);
+ map.on('click',e=>{$('#lat').value=e.latlng.lat.toFixed(6);$('#lng').value=e.latlng.lng.toFixed(6);$('#gpsH').textContent='تم التقاط الموقع من الخريطة.'});
+ $('#loc').onclick=()=>navigator.geolocation?navigator.geolocation.getCurrentPosition(p=>{map.flyTo([p.coords.latitude,p.coords.longitude],18);$('#lat').value=p.coords.latitude.toFixed(6);$('#lng').value=p.coords.longitude.toFixed(6);const a=Math.round(p.coords.accuracy);$('#gpsH').textContent=`دقة GPS: ±${a} م`+(a>30?' – الدقة ضعيفة، يُفضّل التحقق من الموقع على الخريطة.':'');toast(`تم تحديد موقعك (±${a} م)`)},()=>toast('تعذر تحديد الموقع. فعّل إذن الموقع في المتصفح.')):toast('المتصفح لا يدعم تحديد الموقع.');
+ const shp={b:'مبنى',k:'مخيم',a:'أرض زراعية',i:'بنية تحتية'};$('#leg').innerHTML=Object.entries(shp).map(([k,n])=>`<span><span class="m ${k}" style="display:inline-block;vertical-align:middle;background:#5d6b78;width:12px;height:12px"></span> ${n}</span>`).join('')+'<span>اللون = درجة الضرر/الحالة</span>'}
+// ---- التصدير والاستيراد ----
+function dl(name,txt,mime){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([txt],{type:mime}));a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
+function pub(c){if(!$('#anon').checked)return c;const r=x=>+x.toFixed(3);return{...c,owner:c.id,street:'',notes:'',lat:r(c.lat),lng:r(c.lng)}}
+const cell=v=>{v=String(v??'');if(/^[=+\-@\t\r]/.test(v))v="'"+v;return`"${v.replace(/"/g,'""')}"`};
+document.querySelectorAll('[data-x]').forEach(b=>b.onclick=()=>{const x=b.dataset.x,v=view().map(pub),d=today();
+ if(x==='geo')dl(`gaza_register_${d}.geojson`,JSON.stringify({type:'FeatureCollection',features:v.map(c=>({type:'Feature',geometry:{type:'Point',coordinates:[c.lng,c.lat]},properties:(({lat,lng,...p})=>p)(c)}))},null,1),'application/geo+json');
+ else if(x==='csv')dl(`gaza_register_${d}.csv`,'\uFEFF'+['id,owner,type,qty,grade,status,district,street,lat,lng,fam,per,date,notes'].concat(v.map(c=>[c.id,c.owner,tOf(c.type).n,c.qty,c.grade,stN(c.status),c.district,c.street,c.lat,c.lng,c.fam,c.per,c.date,c.notes].map(cell).join(','))).join('\r\n'),'text/csv;charset=utf-8');
+ else dl(`gaza_register_backup_${d}.json`,JSON.stringify(S),'application/json');
+ toast($('#anon').checked&&x!=='bak'?'تم التصدير بدون أسماء.':'تم التصدير.'+(x!=='bak'?' (السجلات المطابقة للفلاتر الحالية)':''))});
+$('#imp').onchange=e=>{const f=e.target.files[0];e.target.value='';if(!f)return;const rd=new FileReader();
+ rd.onload=()=>{try{const p=JSON.parse(rd.result);let arr=p.type==='FeatureCollection'?p.features.map(f=>({...f.properties,lat:f.geometry?.coordinates?.[1],lng:f.geometry?.coordinates?.[0]})):Array.isArray(p)?p:p.claims;
+  const ok=(arr||[]).map(norm).filter(Boolean),bad=(arr||[]).length-ok.length;
+  if(!ok.length)return toast('لا توجد سجلات صالحة في الملف (تحقق من النوع والإحداثيات).');
+  if(!confirm(`سيتم دمج ${ok.length} سجلاً مع بياناتك الحالية دون حذف شيء${bad?` (وتجاهل ${bad} سجلاً غير صالح)`:''}. متابعة؟`))return;
+  const ids=new Set(S.claims.map(c=>c.id));ok.forEach(c=>{if(!c.id||ids.has(c.id))c.id=nid();ids.add(c.id);S.claims.push(c)});save();render();toast(`تم استيراد ${ok.length} سجلاً.`)}catch(err){toast('الملف غير صالح: تأكد أنه JSON أو GeoJSON.')}};rd.readAsText(f)};
+// ---- التشغيل ----
+fillSel($('#type'),TYPES,1);fillSel($('#dist'),DISTS);fillSel($('#status'),STS,1);
+$('#fCat').innerHTML+=Object.entries(CATS).map(([k,n])=>`<option value="${k}">${n}</option>`).join('');
+$('#fGrade').innerHTML+=[...BLD,...CAMPG,...AGRG].map(g=>`<option>${g}</option>`).join('');
+$('#fDist').innerHTML+=DISTS.map(d=>`<option>${d}</option>`).join('');
+$('#fSt').innerHTML+=STS.map(s=>`<option value="${s.k}">${s.n}</option>`).join('');
+['q','fCat','fGrade','fDist','fSt'].forEach(i=>$('#'+i).addEventListener('input',render));
+$('#fClr').onclick=()=>{['q','fCat','fGrade','fDist','fSt'].forEach(i=>$('#'+i).value='');render()};
+load();initMap();onType();render();
+</script>
+</body>
+</html>
